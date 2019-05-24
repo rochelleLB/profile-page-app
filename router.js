@@ -1,19 +1,34 @@
 const Profile = require("./profile.js");
-const renderer = require("./renderer.js")
+const renderer = require("./renderer.js");
+const queryString = require("querystring");
+
+let commonHeader = {"Content-Type": "text/html"};
 
 //Handle HTTP route GET / and POST / ie Home
 const homeRoute = (request, response) => {
 
   //if url  === "/" && GET
   if(request.url === "/"){
-    //show search field
-    response.writeHead(200, {'Content-Type': 'text/plain'});
-    renderer.view("header", {}, response);
-    renderer.view("search", {}, response);
-    renderer.view("footer", {}, response);
-    response.end();
-  //if url === "/" && POST
-    //redirect to /:username
+    if(request.method.toLowerCase() === "get"){
+      //show search field
+      response.writeHead(200, commonHeader);
+      renderer.view("header", {}, response);
+      renderer.view("search", {}, response);
+      renderer.view("footer", {}, response);
+      response.end();
+    } else {
+      //if url === "/" && POST
+
+      //get the post data from body
+      request.on("data", (postBody) => {
+        //extract the username
+        let query = queryString.parse(postBody.toString());
+        response.write(query.username);
+        response.end();
+      });
+        //redirect to /:username
+    }
+
   };
 };
 
@@ -22,7 +37,7 @@ const userRoute = (request, response) => {
   //if url === "/..."
   let username = request.url.replace("/","");
   if(username.length > 0){
-    response.setHeader('Content-Type', 'text/plain');
+    response.writeHead(200, commonHeader);
     renderer.view("header", {}, response);
 
     //get JSON from teamtreehouse
