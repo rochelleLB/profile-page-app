@@ -23,10 +23,11 @@ const homeRoute = (request, response) => {
       request.on("data", (postBody) => {
         //extract the username
         let query = queryString.parse(postBody.toString());
-        response.write(query.username);
+        //redirect to /:username
+        response.writeHead(303, {"location": "/" + query.username});
         response.end();
       });
-        //redirect to /:username
+
     }
 
   };
